@@ -48,25 +48,19 @@
     </nav>
 
     <div class="container-fluid">
-      <div class="row">
+      <div id="site-bar" class="row">
         <div class="col-sm-3 col-md-2 sidebar">
           <ul class="nav nav-sidebar">
             <li class="active" ><a href="#">Most Interesting Slang <span class="sr-only">(current)</span></a></li>
 
           </ul>
-          <ul class="nav nav-sidebar">
-            <li><a href="">vampire years</a></li>
-            <li ><a href="">hucoon</a></li>
-            <li><a href="">winecation</a></li>
-            <li><a href="">yoshie</a></li>
-            <li><a href="">rakhy</a></li>
-	    <li><a href="">Spinion</a></li>
-	    <li><a href="">peter holmes</a></li>
-	    <li><a href="">dana</a></li>
+          <ul id="vocabulary" class="nav nav-sidebar">
+           
           </ul>
          
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+			<button id="button1">Button</button>
           <h1 class="page-header">Where the slang is used</h1>
 <!--
 		<div class="row placeholders">
@@ -108,7 +102,41 @@
 	  </script>
     <script src="js/bootstrap.min.js"></script>
 	  <script>
-		 
+		
+		  function getRandomInRange(from, to, fixed) {
+			  return (Math.random() * (to - from) + from).toFixed(fixed) * 1;
+		  }
+		  
+		 function drawMap(word,tweets) {
+		 // tweets = [ {tweet1}, {tweet2}, ...} ]
+		 // assign random 
+		 var bombs =[];
+		 var index;
+		 console.log(word);
+		 console.log(tweets);
+		 for (index = 0; index <tweets.length; index++) {
+			var media;
+			if (tweets[index].entities.hasOwnProperty(media)) {
+				media = tweets[index].entities.media[0].media_url;
+			} else {
+				media = "images/slang.gif";
+			}
+			var tweet = {
+				name : word,	
+				radius : 5*getRandomInRange(1,2,0),
+				fillKey : 'RUS',
+				text: tweets[index].text,
+				id : tweets[index].id,
+				screen_name : tweets[index].user.screen_name, 
+				
+				image : media,
+				latitude: getRandomInRange(20,48,3),
+				longitude: getRandomInRange(-62,124,3)
+			 };
+			 console.log(tweet);
+			bombs[index] = tweet;
+			console.log(tweet);
+		}		 
 		     var bombMap = new Datamap({
 			    element: document.getElementById('bubbles'),
 			    scope: 'usa',
@@ -283,153 +311,21 @@
 				     }
 			     }
 					  });
-		  
-		  var bombs = [{
-			  name: 'hucoon',
-			  radius: 25,
-			  yeild: 400,
-			  country: 'USSR',
-			  fillKey: 'RUS',
-			  significance: 'First fusion weapon test by the USSR (not "staged")',
-			  date: '1953-08-12',
-			  latitude: 38.895111,
-			  longitude: -77.036667
-			  },{
-			  name: 'hucoon',
-			  radius: 31,
-			  yeild: 1600,
-			  country: 'USSR',
-			  fillKey: 'RUS',
-			  significance: 'First "staged" thermonuclear weapon test by the USSR (deployable)',
-			  date: '1955-11-22',
-			  latitude: 30.16,
-			  longitude: -97.44
-			  
-			  },{
-			  name: 'hucoon',
-			  radius: 30,
-			  yeild: 20000,
-			  country: 'USSR',
-			  fillKey: 'RUS',
-			  significance: 'Largest thermonuclear weapon ever tested—scaled down from its initial 100 Mt design by 50%',
-			  date: '1961-10-31',
-			  latitude: 36.44,
-			  longitude: -119.48
-			  },{
-			  name: 'hucoon',
-			  radius: 10,
-			  yeild: 1200,
-			  country: 'USSR',
-			  fillKey: 'RUS',
-			  significance: 'First "staged" thermonuclear weapon test by the USSR (deployable)',
-			  date: '1955-11-22',
-			  latitude: 40.16,
-			  longitude: -116.44
-			  
-			  },{
-			  name: 'hucoon',
-			  radius: 15,
-			  yeild: 1300,
-			  country: 'USSR',
-			  fillKey: 'RUS',
-			  significance: 'Largest thermonuclear weapon ever tested—scaled down from its initial 100 Mt design by 50%',
-			  date: '1961-10-31',
-			  latitude: 40.44,
-			  longitude: -100.48
-			  },{
-			  name: 'hucoon',
-			  radius: 20,
-			  yeild: 1200,
-			  country: 'USSR',
-			  fillKey: 'RUS',
-			  significance: 'First "staged" thermonuclear weapon test by the USSR (deployable)',
-			  date: '1955-11-22',
-			  latitude: 28.16,
-			  longitude: -81.44
-			  
-			  },{
-			  name: 'hucoon',
-			  radius: 4,
-			  yeild: 1200,
-			  country: 'USSR',
-			  fillKey: 'RUS',
-			  significance: 'First "staged" thermonuclear weapon test by the USSR (deployable)',
-			  date: '1955-11-22',
-			  latitude: 33.75,
-			  longitude: -84.44
-			  
-			  },{
-			  name: 'hucoon',
-			  radius: 5,
-			  yeild: 1200,
-			  country: 'USSR',
-			  fillKey: 'RUS',
-			  significance: 'First "staged" thermonuclear weapon test by the USSR (deployable)',
-			  date: '1955-11-22',
-			  latitude: 40.16,
-			  longitude: -90.44
-			  
-			  },{
-			  name: 'hucoon',
-			  radius: 18,
-			  yeild: 1200,
-			  country: 'USSR',
-			  fillKey: 'RUS',
-			  significance: 'First "staged" thermonuclear weapon test by the USSR (deployable)',
-			  date: '1955-11-22',
-			  latitude: 43.35,
-			  longitude: -84.56
-			  
-			  },{
-			  name: 'hucoon',
-			  radius: 12,
-			  yeild: 1200,
-			  country: 'USSR',
-			  fillKey: 'RUS',
-			  significance: 'First "staged" thermonuclear weapon test by the USSR (deployable)',
-			  date: '1955-11-22',
-			  latitude: 37.66,
-			  longitude: -84.65
-			  
-			  },{
-			  name: 'hucoon',
-			  radius: 15,
-			  yeild: 1200,
-			  country: 'USSR',
-			  fillKey: 'RUS',
-			  significance: 'First "staged" thermonuclear weapon test by the USSR (deployable)',
-			  date: '1955-11-22',
-			  latitude:40.3140,
-			  longitude: -74.5089
-			  
-			  },{
-			  name: 'hucoon',
-			  radius: 5,
-			  yeild: 1200,
-			  country: 'USSR',
-			  fillKey: 'RUS',
-			  significance: 'First "staged" thermonuclear weapon test by the USSR (deployable)',
-			  date: '1955-11-22',
-			  latitude: 32.76,
-			  longitude: -89.96
-			  
-		  }
-		  ];
+		
 		  //draw bubbles for bombs
 		  bombMap.bubbles(bombs, {
 			  popupTemplate: function (geo, data) { 
-				  return ['<div class="hoverinfo"><h4>' +  data.name +'</h4>',
-				  '<br/>Defination: A poor person that makes their living going through dumpsters at night collecting recyclables to turn in for money',
-				  '<hr/>'+ '<img src="images/slang.gif" heigh="50px" width="150px"/>' + '<hr/>',
-				  '1st Top Comment',
-				  '<br/>2nd Top Comment',
-				  '<br/>3rd Top Comment',
+				  return ['<div class="hoverinfo"><h4>' +  word +'</h4>',
+				  '<hr/>'+ '<img src="' + data.image +'"heigh="50px" width="150px"/>' + '<hr/>',
+				  data.text,
 				  '</div>'].join('');
 			  }
 		  });
 		  
 		  bombMap.labels();
+	}
 	  </script>
+	
     <script src="js/docs.min.js"></script>
 	 <!-- <script>
 		$(document).ready(function() {
@@ -467,6 +363,37 @@
 	  </script>-->
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <!-- http://dev.maxmind.com/geoip/legacy/codes/state_latlon/ -->
-    <script src="js/ie10-viewport-bug-workaround.js"></script>
+	  <script>
+		  $(document).ready(function() {
+			  console.log("running3");
+			  
+			  $.getJSON('slangtionary2.json',function(json) {
+				  console.log("running2");
+				 
+				  $.each(json,function(key,value) {
+					  console.log(key);
+					  //$("#site-bar ul#vocabulary").append('<li class="item" id="' + key + '"> <a href="">' + key + '</a></li>');
+					  $("#site-bar ul#vocabulary").append('<li class="item" id="' + key + '"><button>'+ key + '</burron></li>');
+					  $(".item").click(function() {
+						  var item_id = $(this).attr('id');
+						  console.log("running");
+						  $.getJSON('slangtionary2.json',function(json) {
+							  $.each(json,function(key2,value2) {
+								  if (key2 == item_id) {
+									  // regenerate the map
+									  drawMap(key2,value2);
+								  }
+							  });
+						  });
+					  });
+					  //$("#site-bar ul#vocabulary").append('<li class="item" onclick="triggerMap('+"'"+ key+ "'"+ ')" id="' + key + '"> <a href="">' + key + '</a></li>');				
+				  });
+			  });
+			
+			  
+		  });
+		  
+	
+	  </script>
   </body>
 </html>
