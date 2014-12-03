@@ -82,8 +82,8 @@ class Slangtionary:
 	def __init__(self):
 		self.tc = TwitterCrawler()
 		self.words = [] #list of slang words from urban dictionary
-		self.tweets = [] #list of dicts of tweets - returned from api search call
-		self.scores = {} #{id: score}
+		self.tweets = {} #{word:[list of status dicts]}
+		self.scores = {} #{id: (text, score)}
 
 	def get_new_slang(self):
 		''' sets the words member'''
@@ -94,7 +94,7 @@ class Slangtionary:
 
 	def get_twitter_results(self, query, count):
 		'''sets tweets member - type: list of dictionaries'''
-		self.tweets = self.tc.api.search(q = query, count = count, language = "en")['statuses']
+		self.tweets[query] = self.tc.api.search(q = query, count = count, language = "en")['statuses']
 		#maybe later trim down unneeded fields
 
 	def calc_tweet_scores(self):
@@ -105,23 +105,33 @@ class Slangtionary:
 				- 20% from user's total number of tweets
 		   (these amounts may be adjusted later)'''
 		score = 0
-		for t in self.tweets:
-			# adds up to 100%
-			score += t['favorite_count'] * 0.2
-			score += t['retweet_count'] * 0.3
-			score += t['user']['followers_count'] * 0.3
-			score += t['user']['statuses_count'] * 0.2
-			self.scores[t['id']] = score
+		for word in self.tweets:
+			for t in self.tweets[word]:
+				# adds up to 100%
+				score += t['favorite_count'] * 0.35
+				score += t['retweet_count'] * 0.35
+				score += t['user']['followers_count'] * 0.15
+				score += t['user']['statuses_count'] * 0.15
+				self.scores[t['id']] = (t['text'], score)
+				#print t
+				#print self.tc.crawl_user_profile(t['user']['id'])
+				#print self.tc.crawl_user_profile(32952561)
 
 if __name__ == '__main__':
 	sl = Slangtionary()
 	sl.get_new_slang()
+	tojson = {}
 	print 'got slang words'
 	#for now, just show results for first word and 5 tweets from search
-	sl.get_twitter_results(sl.words[1], 5)
+	for w in sl.words:
+		sl.get_twitter_results(w, 10)
+	#sl.get_twitter_results(sl.words[0], 10)
 	sl.calc_tweet_scores()
 	#prints out slang word followed by a list of tweet IDs and their associated scores
-	print sl.words[1]
-	print '==================='
-	for item in sl.scores.keys():
-		print str(item) + ': ' + str(sl.scores[item])
+	#print sl.words[7]
+	#print '==================='
+	#for item in sl.scores.keys():
+	#	print unicode(sl.scores[item][0]) + ': ' + unicode(sl.scores[item][1])
+	#need to put this into a dict, then dump to json
+	with open('slangtionary.json', 'w') as f:
+		json.dump(sl.tweets, f)
