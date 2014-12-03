@@ -1,0 +1,472 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Slangtionary</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/dashboard.css" rel="stylesheet">
+	  <script src="http://d3js.org/d3.v3.min.js"></script>
+	  <script src="http://d3js.org/topojson.v1.min.js"></script>
+	  <script src="http://datamaps.github.io/scripts/datamaps.all.min.js"></script>
+	
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Slangtionary</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#">Our Project</a></li>
+            <li><a href="#">Who we are</a></li>
+            <li><a href="#">Contact Us</a></li>
+          </ul>
+          <form class="navbar-form navbar-right">
+            <input type="text" class="form-control" placeholder="Search...">
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+            <li class="active" ><a href="#">Most Interesting Slang <span class="sr-only">(current)</span></a></li>
+
+          </ul>
+          <ul class="nav nav-sidebar">
+            <li><a href="">vampire years</a></li>
+            <li ><a href="">hucoon</a></li>
+            <li><a href="">winecation</a></li>
+            <li><a href="">yoshie</a></li>
+            <li><a href="">rakhy</a></li>
+	    <li><a href="">Spinion</a></li>
+	    <li><a href="">peter holmes</a></li>
+	    <li><a href="">dana</a></li>
+          </ul>
+         
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h1 class="page-header">Where the slang is used</h1>
+<!--
+		<div class="row placeholders">
+			<div  class="map" id="container" style="position: relative; width: 1000px; height: 500px;">
+				
+				
+			</div>
+			
+		</div>
+		-->
+		<div class="row placeholders">
+			<div  class="map" id="bubbles" style="position: relative; width: 1000px; height: 500px;">
+				
+				
+			</div>
+			
+		</div>
+
+          
+        </div>
+      </div>
+    </div>
+
+	 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	  <script>
+		  var map = new Datamap({
+			  element: document.getElementById('container'),
+			  scope: 'usa',
+			  fills: {
+				  defaultFill: '#ABDDA4' //any hex, color name or rgb/rgba value
+			  },
+			  geographyConfig: {
+				  highlightOnHover: true,
+				  popupOnHover: true
+			  }
+		  });
+		  map.labels();
+	  </script>
+    <script src="js/bootstrap.min.js"></script>
+	  <script>
+		 
+		     var bombMap = new Datamap({
+			    element: document.getElementById('bubbles'),
+			    scope: 'usa',
+			    geographyConfig: {
+				popupOnHover: true,
+				highlightOnHover: true,
+				    popupTemplate: function(geography, data) {
+					    return '<div class="hoverinfo">' + geography.properties.name +'</div>'
+				    },
+			    },
+			    fills: {
+				'USA': '#ABDDA4',
+				'RUS': '#9467bd',
+				'PRK': '#ff7f0e',
+				'PRC': '#2ca02c',
+				'IND': '#e377c2',
+				'GBR': '#8c564b',
+				'FRA': '#d62728',
+				'PAK': '#7f7f7f',
+				defaultFill: '#EDDC4E'
+			    },
+			     data:{
+				     "AZ": {
+					     "fillKey": "USA",
+				     },
+				     "CO": {
+					     "fillKey": "USA",
+				     },
+				     "DE": {
+					     "fillKey": "USA",
+				     },
+				     "FL": {
+					     "fillKey": "USA",
+				     },
+				     "GA": {
+					     "fillKey": "USA",
+				     },
+				     "HI": {
+					     "fillKey": "USA",
+				     },
+				     "ID": {
+					     "fillKey": "USA",
+				     },
+				     "IL": {
+					     "fillKey": "USA",
+				     },
+				     "IN": {
+					     "fillKey": "USA",
+				     },
+				     "IA": {
+					     "fillKey": "USA",
+				     },
+				     "KS": {
+					     "fillKey": "USA",
+				     },
+				     "KY": {
+					     "fillKey": "USA",
+				     },
+				     "LA": {
+					     "fillKey": "USA",
+				     },
+				     "MD": {
+					     "fillKey": "USA",
+				     },
+				     "ME": {
+					     "fillKey": "USA",
+				     },
+				     "MA": {
+					     "fillKey": "USA",
+				     },
+				     "MN": {
+					     "fillKey": "USA",
+				     },
+				     "MI": {
+					     "fillKey": "USA",
+				     },
+				     "MS": {
+					     "fillKey": "USA",
+				     },
+				     "MO": {
+					     "fillKey": "USA",
+				     },
+				     "MT": {
+					     "fillKey": "USA",
+				     },
+				     "NC": {
+					     "fillKey": "USA",
+				     },
+				     "NE": {
+					     "fillKey": "USA",
+				     },
+				     "NV": {
+					     "fillKey": "USA",
+				     },
+				     "NH": {
+					     "fillKey": "USA",
+				     },
+				     "NJ": {
+					     "fillKey": "USA",
+				     },
+				     "NY": {
+					     "fillKey": "USA",
+				     },
+				     "ND": {
+					     "fillKey": "USA",
+				     },
+				     "NM": {
+					     "fillKey": "USA",
+				     },
+				     "OH": {
+					     "fillKey": "USA",
+				     },
+				     "OK": {
+					     "fillKey": "USA",
+				     },
+				     "OR": {
+					     "fillKey": "USA",
+				     },
+				     "PA": {
+					     "fillKey": "USA",
+				     },
+				     "RI": {
+					     "fillKey": "USA",
+				     },
+				     "SC": {
+					     "fillKey": "USA",
+				     },
+				     "SD": {
+					     "fillKey": "USA",
+				     },
+				     "TN": {
+					     "fillKey": "USA",
+				     },
+				     "TX": {
+					     "fillKey": "USA",
+				     },
+				     "UT": {
+					     "fillKey": "USA",
+				     },
+				     "WI": {
+					     "fillKey": "USA",
+				     },
+				     "VA": {
+					     "fillKey": "USA",
+				     },
+				     "VT": {
+					     "fillKey": "USA",
+				     },
+				     "WA": {
+					     "fillKey": "USA",
+				     },
+				     "WV": {
+					     "fillKey": "USA",
+				     },
+				     "WY": {
+					     "fillKey": "USA",
+				     },
+				     "CA": {
+					     "fillKey": "USA",
+				     },
+				     "CT": {
+					     "fillKey": "USA",
+				     },
+				     "AK": {
+					     "fillKey": "USA",
+				     },
+				     "AR": {
+					     "fillKey": "USA",
+				     },
+				     "AL": {
+					     "fillKey": "USA",
+				     }
+			     }
+					  });
+		  
+		  var bombs = [{
+			  name: 'hucoon',
+			  radius: 25,
+			  yeild: 400,
+			  country: 'USSR',
+			  fillKey: 'RUS',
+			  significance: 'First fusion weapon test by the USSR (not "staged")',
+			  date: '1953-08-12',
+			  latitude: 38.895111,
+			  longitude: -77.036667
+			  },{
+			  name: 'hucoon',
+			  radius: 31,
+			  yeild: 1600,
+			  country: 'USSR',
+			  fillKey: 'RUS',
+			  significance: 'First "staged" thermonuclear weapon test by the USSR (deployable)',
+			  date: '1955-11-22',
+			  latitude: 30.16,
+			  longitude: -97.44
+			  
+			  },{
+			  name: 'hucoon',
+			  radius: 30,
+			  yeild: 20000,
+			  country: 'USSR',
+			  fillKey: 'RUS',
+			  significance: 'Largest thermonuclear weapon ever tested—scaled down from its initial 100 Mt design by 50%',
+			  date: '1961-10-31',
+			  latitude: 36.44,
+			  longitude: -119.48
+			  },{
+			  name: 'hucoon',
+			  radius: 10,
+			  yeild: 1200,
+			  country: 'USSR',
+			  fillKey: 'RUS',
+			  significance: 'First "staged" thermonuclear weapon test by the USSR (deployable)',
+			  date: '1955-11-22',
+			  latitude: 40.16,
+			  longitude: -116.44
+			  
+			  },{
+			  name: 'hucoon',
+			  radius: 15,
+			  yeild: 1300,
+			  country: 'USSR',
+			  fillKey: 'RUS',
+			  significance: 'Largest thermonuclear weapon ever tested—scaled down from its initial 100 Mt design by 50%',
+			  date: '1961-10-31',
+			  latitude: 40.44,
+			  longitude: -100.48
+			  },{
+			  name: 'hucoon',
+			  radius: 20,
+			  yeild: 1200,
+			  country: 'USSR',
+			  fillKey: 'RUS',
+			  significance: 'First "staged" thermonuclear weapon test by the USSR (deployable)',
+			  date: '1955-11-22',
+			  latitude: 28.16,
+			  longitude: -81.44
+			  
+			  },{
+			  name: 'hucoon',
+			  radius: 4,
+			  yeild: 1200,
+			  country: 'USSR',
+			  fillKey: 'RUS',
+			  significance: 'First "staged" thermonuclear weapon test by the USSR (deployable)',
+			  date: '1955-11-22',
+			  latitude: 33.75,
+			  longitude: -84.44
+			  
+			  },{
+			  name: 'hucoon',
+			  radius: 5,
+			  yeild: 1200,
+			  country: 'USSR',
+			  fillKey: 'RUS',
+			  significance: 'First "staged" thermonuclear weapon test by the USSR (deployable)',
+			  date: '1955-11-22',
+			  latitude: 40.16,
+			  longitude: -90.44
+			  
+			  },{
+			  name: 'hucoon',
+			  radius: 18,
+			  yeild: 1200,
+			  country: 'USSR',
+			  fillKey: 'RUS',
+			  significance: 'First "staged" thermonuclear weapon test by the USSR (deployable)',
+			  date: '1955-11-22',
+			  latitude: 43.35,
+			  longitude: -84.56
+			  
+			  },{
+			  name: 'hucoon',
+			  radius: 12,
+			  yeild: 1200,
+			  country: 'USSR',
+			  fillKey: 'RUS',
+			  significance: 'First "staged" thermonuclear weapon test by the USSR (deployable)',
+			  date: '1955-11-22',
+			  latitude: 37.66,
+			  longitude: -84.65
+			  
+			  },{
+			  name: 'hucoon',
+			  radius: 15,
+			  yeild: 1200,
+			  country: 'USSR',
+			  fillKey: 'RUS',
+			  significance: 'First "staged" thermonuclear weapon test by the USSR (deployable)',
+			  date: '1955-11-22',
+			  latitude:40.3140,
+			  longitude: -74.5089
+			  
+			  },{
+			  name: 'hucoon',
+			  radius: 5,
+			  yeild: 1200,
+			  country: 'USSR',
+			  fillKey: 'RUS',
+			  significance: 'First "staged" thermonuclear weapon test by the USSR (deployable)',
+			  date: '1955-11-22',
+			  latitude: 32.76,
+			  longitude: -89.96
+			  
+		  }
+		  ];
+		  //draw bubbles for bombs
+		  bombMap.bubbles(bombs, {
+			  popupTemplate: function (geo, data) { 
+				  return ['<div class="hoverinfo"><h4>' +  data.name +'</h4>',
+				  '<br/>Defination: A poor person that makes their living going through dumpsters at night collecting recyclables to turn in for money',
+				  '<hr/>'+ '<img src="images/slang.gif" heigh="50px" width="150px"/>' + '<hr/>',
+				  '1st Top Comment',
+				  '<br/>2nd Top Comment',
+				  '<br/>3rd Top Comment',
+				  '</div>'].join('');
+			  }
+		  });
+		  
+		  bombMap.labels();
+	  </script>
+    <script src="js/docs.min.js"></script>
+	 <!-- <script>
+		$(document).ready(function() {
+			var bubble_map = new Datamap({
+				element: document.getElementById("bubbles"),
+				geographyConfig: {
+					popupOnHover: false,
+					highlightOnHover: false
+				},
+				fills: {
+					defaultFill: '#ABDDA4',
+					USA: 'blue',
+	
+				}
+			});
+			bubble_map.bubbles([
+			{
+				name: 'Castle Bravo',
+				radius: 25,
+				yeild: 15000,
+				country: 'USA',
+				significance: 'First dry fusion fuel "staged" thermonuclear weapon; a serious nuclear fallout accident occurred',
+				fillKey: 'USA',
+				date: '1954-03-01',
+				latitude: 11.415,
+				longitude: 165.1619
+				}
+			], {
+				popupTemplate: function(geo, data) {
+					return '<div class="hoverinfo">Yield:' + data.yeild + '
+					Exploded on ' + data.date + ' by the'  + data.country + ''
+				}
+			});
+		 });
+	  </script>-->
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <!-- http://dev.maxmind.com/geoip/legacy/codes/state_latlon/ -->
+    <script src="js/ie10-viewport-bug-workaround.js"></script>
+  </body>
+</html>
