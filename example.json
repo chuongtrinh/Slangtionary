@@ -1,0 +1,12 @@
+{words:[{
+	tweetID: 1234,
+	score: 1234,
+	user: man,
+	userID: 1234,
+	text: 'stuff',
+	image: 'link',
+	location: 'location',
+	geo: 'coordinates',
+	coordinates: 'coords'
+	}]
+}
