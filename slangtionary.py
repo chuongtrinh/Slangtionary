@@ -88,7 +88,7 @@ class Slangtionary:
                 self.words = [] #list of slang words from urban dictionary
                 self.tweets = {} #{word:[list of status dicts]}
                 self.scores = [] # [ { id: 231, 'text': fsdfs, 'score':0.23} , { id: 231, 'text': fsdfs, 'score':0.23} ]
-                self.sortedTweets = []
+                self.sortedTweets = {} # { word: self.scores, 
                 
         def get_new_slang(self):
                 ''' sets the words member'''
@@ -111,6 +111,7 @@ class Slangtionary:
                    (these amounts may be adjusted later)'''
                 #score = 0
                 for word in self.tweets:
+                        sortedList =[]
                         for t in self.tweets[word]:
                                 # adds up to 100%
                                 score = 0
@@ -129,7 +130,8 @@ class Slangtionary:
                                 #print "\n_____________________\n"
                                 #print self.tc.crawl_user_tweets(t['user']['id'],3)
                                 #print self.tc.crawl_user_profile(32952561)
-                self.sortedTweets = sorted(self.scores, key = lambda k: k['score'])
+                                sortedList = sorted(self.scores, key = lambda k: k['score'], reverse=True)[0:100]
+                        self.sortedTweets[word] = sortedList
                 print self.sortedTweets
 
 if __name__ == '__main__':
