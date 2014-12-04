@@ -4,9 +4,11 @@ from lxml import html
 import requests
 import tweepy
 import time
+import operator
 import sys
 import re
 import math
+from random import randint
 from stemming.porter2 import stem
 from operator import itemgetter
 from random import randint
@@ -76,7 +78,8 @@ class TwitterCrawler():
                 return tweets[:count]
 
         def search_from_query(self, query, count):
-                results = self.api.search(q = query, count = count, language = "en")
+                newQuery = '"'+query + '":)'
+                self.tweets[query] = self.tc.api.search(q = newQuery, count = count, lang = "en")['statuses']
                 #for res in results['statuses']:
                 #    print res['text']
                 return results
@@ -88,8 +91,89 @@ class Slangtionary:
                 self.words = [] #list of slang words from urban dictionary
                 self.tweets = {} #{word:[list of status dicts]}
                 self.scores = [] # [ { id: 231, 'text': fsdfs, 'score':0.23} , { id: 231, 'text': fsdfs, 'score':0.23} ]
-                self.sortedTweets = {} # { word: self.scores, 
+                self.sortedTweets = {} # { word: self.scores,
+                self.topWords = {}
+
+        def frequency(self,word, list_of_word_in_doc):
+                return list_of_word_in_doc.count(word)
+
+        def num_of_docs_have_word(self,word, list_of_reviews):
+                count = 0
+                for review_id, review_text in list_of_reviews.iteritems():
+                    if self.frequency(word, review_text) >0:
+                        count +=1
+                return count
+    
+        def tf(self,word, list_of_word_in_doc):
+                # return number of times that term word occurs in d
+                return (self.frequency(word,list_of_word_in_doc) / float(len(list_of_word_in_doc)))
+
+        def idf(self,word, list_of_reviews):
+                return math.log(len(list_of_reviews) / self.num_of_docs_have_word(word, list_of_reviews))
+
+        def tfidf_score(self,tf_value,idf_value):
+                return ((1 + math.log(tf_value)) * idf_value)
+    
+        def get_review_tfidf_dict(self,list_of_reviews):
+                # calculate number of times that t 
+                #return a dictionary with each key,value pair as review_id and review_content
+
+                list_of_reviews_w_tfidf = {}
+                for review_id, review_text,score in list_of_reviews.iteritems():
+                    list_of_tfidf = {} # build a dictionary with key as word and value as if-idf score
+                    for word in review_text:
+                        list_of_tfidf[word] = self.tfidf_score(self.tf(word,review_text), self.idf(word,list_of_reviews))
+                    list_of_reviews_w_tfidf[review_id+'-'+score] = list_of_tfidf
+                    # { [ review_id-score : { word1 : 12; word2 : 34; ..... }}
+                return list_of_reviews_w_tfidf
+    
+        def cosine_similarity_matrix(self,review_tfidf_matrix):
+                #return a dictionary with each key,value pair as review_id1,[review_id2,cosine_socre]
+                cosine_matrix = {}
+                for review_id_1, list_of_scores_1 in review_tfidf_matrix.iteritems():
+                    each_cosine_matrix = {}
+                    for review_id_2, list_of_scores_2 in review_tfidf_matrix.iteritems():
+                        product = 0
+                        vec_of_2 = 0
+                        vec_of_1 = 0
+                        for word,score in list_of_scores_1.iteritems():
+                            if word in list_of_scores_2:
+                                product += score * list_of_scores_2[word]
+                                vec_of_2 += list_of_scores_2[word]**2
+                            vec_of_1 += score**2
+                        if vec_of_2 == 0:
+                            sim = 0
+                        else:
+                            sim = product / (math.sqrt(vec_of_1) * math.sqrt(vec_of_2))
+                        each_cosine_matrix[review_id_2] = sim
+                    cosine_matrix[review_id_1] = each_cosine_matrix
+                return cosine_matrix
                 
+        def get_similar_review(self,cosine_similarity_matrix):
+                #return most similar review{"r_id_1":"review content", "r_id_2":"review content"}
+                # convert 2-d to 1-d [ (review_id_1;;review_id_2, score),   ]
+                new_cosine_matrix = {}
+                #top_10_reviews = {}
+                for review_id, list_of_compared_reviews in cosine_similarity_matrix.iteritems():
+                    for review_id_2, cosine_value in list_of_compared_reviews.iteritems():
+                        new_review_ids = review_id + ";;" + review_id_2
+                        new_cosine_matrix[new_review_ids] = cosine_value
+                
+                # I don't know how to sort list of list with value inside inner list...
+                # convert 2-d to 1-d to sort based on second value 
+                top_100_reviews = sorted(new_cosine_matrix, key = lambda rev : rev[1], reverse = True)[0:100]
+                #print new_cosine_matrix
+                top_reviews = []
+               # print top_100_reviews
+                for review_ids in top_100_reviews:
+                    #put 100 review_id has highest score into a list
+                    #most_common to find top 10 reviews
+                    reviews = review_ids.split(";;")
+                    for review in reviews:
+                        if review not in top_reviews:
+                            top_reviews.append(review)
+                #print top_reviews
+                return top_reviews[0:10]                
         def get_new_slang(self):
                 ''' sets the words member'''
                 page = requests.get('http://www.urbandictionary.com/yesterday.php')
@@ -99,7 +183,8 @@ class Slangtionary:
 
         def get_twitter_results(self, query, count):
                 '''sets tweets member - type: list of dictionaries'''
-                self.tweets[query] = self.tc.api.search(q = query, count = count, language = "en")['statuses']
+                newQuery = '"'+query + '":)'
+                self.tweets[query] = self.tc.api.search(q = newQuery, count = count, lang = "en")['statuses']
                 #maybe later trim down unneeded fields
         
         def calc_tweet_scores(self):
@@ -110,8 +195,10 @@ class Slangtionary:
                                 - 20% from user's total number of tweets
                    (these amounts may be adjusted later)'''
                 #score = 0
+                
                 for word in self.tweets:
                         sortedList =[]
+                        totalscore = 0
                         for t in self.tweets[word]:
                                 # adds up to 100%
                                 score = 0
@@ -119,20 +206,24 @@ class Slangtionary:
                                 score += math.log(t['retweet_count']+1,2) * 0.35
                                 score += math.log(t['user']['followers_count']+1,2) * 0.15
                                 score += math.log(t['user']['statuses_count']+1,2) * 0.15
-
+                                totalscore += score
                                 #stemming the texts
                                 tokens = TextProcess.tokenize(t['text'])
-                                list_of_stem_words = TextProcess.stemming(tokens)
-                                text = ' '.join(list_of_stem_words).strip()
-                                self.scores.append({ 'id': t['id'], 'text': unicode(text,errors='ignore'), 'score' : score})
+                                #list_of_stem_words = TextProcess.stemming(tokens)
+                                text = ' '.join(tokens).strip()
+                                self.scores.append({ 'id': t['id'], 'text': re.sub('^@',' ',unicode(re.sub(r'\bhttp\b',' ',text),errors='ignore')), 'score' : score})
                                 #print t
                                 #print self.tc.crawl_user_profile(t['user']['id'])
                                 #print "\n_____________________\n"
                                 #print self.tc.crawl_user_tweets(t['user']['id'],3)
                                 #print self.tc.crawl_user_profile(32952561)
                                 sortedList = sorted(self.scores, key = lambda k: k['score'], reverse=True)[0:100]
-                        self.sortedTweets[word] = sortedList
-                print self.sortedTweets
+                        #exclude no result words
+                        if (totalscore >0):
+                                self.sortedTweets[word] = sortedList
+                                self.topWords[word] = totalscore
+                #print self.sortedTweets
+                #tfidf_dict = self.get_review_tfidf_dict(self.
 
 if __name__ == '__main__':
         sl = Slangtionary()
@@ -140,8 +231,11 @@ if __name__ == '__main__':
         tojson = {}
         print 'got slang words'
         #for now, just show results for first word and 5 tweets from search
-        for w in sl.words[5:20]:
-                sl.get_twitter_results(w, 10)
+        for w in sl.words[0:150]:
+                #picking randomly!
+                ran = randint(0,4)
+                if (ran % 3 == 0):
+                        sl.get_twitter_results(w, 40)
         #sl.get_twitter_results(sl.words[7], 1)
         sl.calc_tweet_scores()
         #prints out slang word followed by a list of tweet IDs and their associated scores
@@ -150,7 +244,16 @@ if __name__ == '__main__':
         #for item in sl.scores.keys():
         #	print unicode(sl.scores[item][0]) + ': ' + unicode(sl.scores[item][1])
         #need to put this into a dict, then dump to json
+        # top 10 interesting words
+        topTweets = {}
+        print sl.topWords
+        topWords2 =  sorted(sl.topWords, key = lambda rev: rev[1], reverse = True)[0:15]
+        print topWords2
+        for top_word in topWords2:
+                print top_word
+                topTweets[top_word] = sl.sortedTweets[top_word]
+        #print topTweets
         with open('score.json','w') as f:
-                json.dump(sl.sortedTweets,f)
+                json.dump(topTweets,f)
         with open('slangtionary.json', 'w') as f:
                 json.dump(sl.tweets, f)
