@@ -183,7 +183,8 @@ class Slangtionary:
 
         def get_twitter_results(self, query, count):
                 '''sets tweets member - type: list of dictionaries'''
-                newQuery = '"'+query + '":)'
+                newQuery = '\"'+query + '\"'
+                print newQuery
                 self.tweets[query] = self.tc.api.search(q = newQuery, count = count, lang = "en")['statuses']
                 #maybe later trim down unneeded fields
         
@@ -197,29 +198,36 @@ class Slangtionary:
                 #score = 0
                 
                 for word in self.tweets:
+                        print word
                         sortedList =[]
                         totalscore = 0
                         for t in self.tweets[word]:
                                 # adds up to 100%
-                                score = 0
-                                score += math.log(t['favorite_count']+1,2) * 0.35
-                                score += math.log(t['retweet_count']+1,2) * 0.35
-                                score += math.log(t['user']['followers_count']+1,2) * 0.15
-                                score += math.log(t['user']['statuses_count']+1,2) * 0.15
-                                totalscore += score
-                                #stemming the texts
-                                tokens = TextProcess.tokenize(t['text'])
-                                #list_of_stem_words = TextProcess.stemming(tokens)
-                                text = ' '.join(tokens).strip()
-                                self.scores.append({ 'id': t['id'], 'text': re.sub('^@',' ',unicode(re.sub(r'\bhttp\b',' ',text),errors='ignore')), 'score' : score})
-                                #print t
-                                #print self.tc.crawl_user_profile(t['user']['id'])
-                                #print "\n_____________________\n"
-                                #print self.tc.crawl_user_tweets(t['user']['id'],3)
-                                #print self.tc.crawl_user_profile(32952561)
-                                sortedList = sorted(self.scores, key = lambda k: k['score'], reverse=True)[0:100]
+                                if t['text'].find("RT",0,100) == -1:
+                                        if word in t['text']:
+                                                #print word
+                                                #print unicode(t['text'])
+                                                score = 0
+                                                score += math.log(t['favorite_count']+1,2) * 0.025
+                                                score += math.log(t['retweet_count']+1,2) * 0.0025
+                                                #score += math.log(t['user']['followers_count']+1,2) * 0.05
+                                                #score += math.log(t['user']['statuses_count']+1,2) * 0.05
+                                                score += t['text'].count(word) * 10
+                                                totalscore += score
+                                                #stemming the texts
+                                                tokens = TextProcess.tokenize(t['text'])
+                                                #list_of_stem_words = TextProcess.stemming(tokens)
+                                                text = ' '.join(tokens).strip()
+                                                self.scores.append({ 'id': t['id'], 'text': re.sub('^@',' ',unicode(re.sub(r'\bhttp',' ',text),errors='ignore')), 'score' : score})
+                                                
+                                                #print t
+                                                #print self.tc.crawl_user_profile(t['user']['id'])
+                                                #print "\n_____________________\n"
+                                                #print self.tc.crawl_user_tweets(t['user']['id'],3)
+                                                #print self.tc.crawl_user_profile(32952561)
                         #exclude no result words
                         if (totalscore >0):
+                                sortedList = sorted(self.scores, key = lambda k: k['score'], reverse=True)[0:100]
                                 self.sortedTweets[word] = sortedList
                                 self.topWords[word] = totalscore
                 #print self.sortedTweets
@@ -231,11 +239,11 @@ if __name__ == '__main__':
         tojson = {}
         print 'got slang words'
         #for now, just show results for first word and 5 tweets from search
-        for w in sl.words[0:150]:
+        for w in sl.words[10:150]:
                 #picking randomly!
                 ran = randint(0,4)
                 if (ran % 3 == 0):
-                        sl.get_twitter_results(w, 40)
+                        sl.get_twitter_results(w, 100)
         #sl.get_twitter_results(sl.words[7], 1)
         sl.calc_tweet_scores()
         #prints out slang word followed by a list of tweet IDs and their associated scores
