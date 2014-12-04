@@ -60,7 +60,6 @@
          
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-			<button id="button1">Button</button>
           <h1 class="page-header">Where the slang is used</h1>
 <!--
 		<div class="row placeholders">
@@ -110,28 +109,36 @@
 		 function drawMap(word,tweets) {
 		 // tweets = [ {tweet1}, {tweet2}, ...} ]
 		 // assign random 
+		 // empty previous map
+		 $('#bubbles').empty();
 		 var bombs =[];
 		 var index;
 		 console.log(word);
 		 console.log(tweets);
 		 for (index = 0; index <tweets.length; index++) {
-			var media;
-			if (tweets[index].entities.hasOwnProperty(media)) {
-				media = tweets[index].entities.media[0].media_url;
+			var media  ="images/slang.gif";
+			var screen_name;
+			if (typeof tweets[index].entities !== 'undefined') {
+				//media = tweets[index].entities.media[0].media_url;
 			} else {
-				media = "images/slang.gif";
+				//media = "images/slang.gif";
 			}
+			 if (typeof tweets[index].user !== 'undefined') {
+				 screen_name = tweets[index].user.screen_name;
+			 } else {
+				 screen_name = tweets[index].name;
+			 }
 			var tweet = {
 				name : word,	
 				radius : 5*getRandomInRange(1,2,0),
 				fillKey : 'RUS',
 				text: tweets[index].text,
 				id : tweets[index].id,
-				screen_name : tweets[index].user.screen_name, 
+				screen_name : screen_name, 
 				
 				image : media,
-				latitude: getRandomInRange(20,48,3),
-				longitude: getRandomInRange(-62,124,3)
+				latitude: getRandomInRange(30,47,3),
+				longitude: getRandomInRange(-118,-81,3)
 			 };
 			 console.log(tweet);
 			bombs[index] = tweet;
@@ -316,7 +323,7 @@
 		  bombMap.bubbles(bombs, {
 			  popupTemplate: function (geo, data) { 
 				  return ['<div class="hoverinfo"><h4>' +  word +'</h4>',
-				  '<hr/>'+ '<img src="' + data.image +'"heigh="50px" width="150px"/>' + '<hr/>',
+				  '<hr/>'+ '<img src="' + data.image +'"heigh="30px" width="150px"/>' + '<hr/>',
 				  data.text,
 				  '</div>'].join('');
 			  }
@@ -363,33 +370,54 @@
 	  </script>-->
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <!-- http://dev.maxmind.com/geoip/legacy/codes/state_latlon/ -->
+	  <script type="text/javascript">
+		  /* <![CDATA[ */
+		  ( function( $ ) {
+			  $( 'a[href="#"]' ).click( function(e) {
+				  e.preventDefault();
+			  } );
+		  } )( jQuery );
+		  /* ]]> */
+	  </script>
 	  <script>
 		  $(document).ready(function() {
 			  console.log("running3");
 			  
-			  $.getJSON('slangtionary2.json',function(json) {
+			  $.getJSON('slangtionary.json',function(json) {
 				  console.log("running2");
 				 
 				  $.each(json,function(key,value) {
 					  console.log(key);
 					  //$("#site-bar ul#vocabulary").append('<li class="item" id="' + key + '"> <a href="">' + key + '</a></li>');
-					  $("#site-bar ul#vocabulary").append('<li class="item" id="' + key + '"><button>'+ key + '</burron></li>');
-					  $(".item").click(function() {
-						  var item_id = $(this).attr('id');
-						  console.log("running");
-						  $.getJSON('slangtionary2.json',function(json) {
-							  $.each(json,function(key2,value2) {
-								  if (key2 == item_id) {
-									  // regenerate the map
-									  drawMap(key2,value2);
-								  }
-							  });
-						  });
-					  });
+					  $("#site-bar ul#vocabulary").append('<li class="item" id="' + key + '"><a href="#">'+ key + '</a></li>');
+					 
+					  
 					  //$("#site-bar ul#vocabulary").append('<li class="item" onclick="triggerMap('+"'"+ key+ "'"+ ')" id="' + key + '"> <a href="">' + key + '</a></li>');				
 				  });
-			  });
 			
+			  });
+			  window.setTimeout(function() {
+			  $(".item").click(function() {
+				  var item_id = $(this).attr('id');
+				  console.log("running");
+				  
+				  $.getJSON('slangtionary.json',function(json) {
+					  var input = [];
+					  
+					  $.each(json,function(key2,value2) {
+						  if (key2 == item_id) {
+							  // regenerate the map
+							  input.push(value2);
+							  //console.log(value2);
+						  }
+					  });
+					  console.log("dojne");
+					  console.log(input);
+					  drawMap(item_id,input[0]);
+				  });
+				  
+			  });
+			  }, 3000);
 			  
 		  });
 		  
