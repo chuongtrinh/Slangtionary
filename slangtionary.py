@@ -19,10 +19,10 @@ from operator import itemgetter
 
 class TwitterCrawler():
         # Fill in the blanks here for your own Twitter app.
-        consumer_key = "TC5bMiNlg0onU5tZkxZSMIPks"
-        consumer_secret = "bDE2pVIa6EPFksMJikQL6mG8b3TwOA5j85swgRGVRIsYW764ET"
-        access_key = "2834729734-jZM6x0heA2aryjIfLsbzvEwSpmIDLk2ywCMEFsI"
-        access_secret = "L5w3qpfFfGcrF7vtmfndIaNqt7LvIGMyBlZkJn04dwOZt"
+        consumer_key = "hdtQCs3wdYzbTabEPAii9daoj"
+        consumer_secret = "0MxfmOAPAGSF0DF7vDXV7OQXg5AjGgksRPDX6to9VET4FG9oag"
+        access_key = "32952561-JJbcCWzlZ9Qmq86bY3FfT0iVzmlEWZXjPRviIsAqS"
+        access_secret = "6IV1EWUmvToX2mDARU4Ttenq8E2razoHbtIx85PrDi4Yv"
         auth = None
         api = None
 
