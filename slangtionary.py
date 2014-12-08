@@ -173,13 +173,15 @@ class Slangtionary:
                         if review not in top_reviews:
                             top_reviews.append(review)
                 #print top_reviews
-                return top_reviews[0:10]                
+                return top_reviews[0:10]
+
         def get_new_slang(self):
                 ''' sets the words member'''
                 page = requests.get('http://www.urbandictionary.com/yesterday.php')
                 tree = html.fromstring(page.text)
                 terms = tree.xpath('//div[@id="columnist"]//li/a/text()')
                 self.words = terms
+                self.remove_old_words() #go ahead and remove old words here before everything else is done
 
         def get_twitter_results(self, query, count):
                 '''sets tweets member - type: list of dictionaries'''
@@ -233,17 +235,37 @@ class Slangtionary:
                 #print self.sortedTweets
                 #tfidf_dict = self.get_review_tfidf_dict(self.
 
+        def remove_old_words(self):
+        	''' remove words from self.words that have lots of definitions'''
+        	#api.urbandictionary.com/v0/define?term=___
+        	new_words_only = []
+        	for word in self.words:
+        		if ' ' in word:
+        			tempword = word.replace(' ', '+')
+        		else:
+        			tempword = word
+        		url = 'http://api.urbandictionary.com/v0/define?term=' + str(tempword)
+        		r = requests.get(url)
+        		UDjson = r.json()
+        		#apiDict = json.load(UDjson) #convert to python dict
+        		if len(UDjson['list']) < 3:
+        			new_words_only.append(word)
+        	self.words = new_words_only
+        	print "after removing words:"
+        	print self.words
+
+
 if __name__ == '__main__':
         sl = Slangtionary()
         sl.get_new_slang()
         tojson = {}
         print 'got slang words'
         #for now, just show results for first word and 5 tweets from search
-        for w in sl.words[10:150]:
+        for w in sl.words:
                 #picking randomly!
-                ran = randint(0,4)
-                if (ran % 3 == 0):
-                        sl.get_twitter_results(w, 100)
+                #ran = randint(0,4)
+                #if (ran % 3 == 0):
+            sl.get_twitter_results(w, 1)
         #sl.get_twitter_results(sl.words[7], 1)
         sl.calc_tweet_scores()
         #prints out slang word followed by a list of tweet IDs and their associated scores
@@ -254,14 +276,14 @@ if __name__ == '__main__':
         #need to put this into a dict, then dump to json
         # top 10 interesting words
         topTweets = {}
-        print sl.topWords
-        topWords2 =  sorted(sl.topWords, key = lambda rev: rev[1], reverse = True)[0:15]
-        print topWords2
+        #print sl.topWords
+        topWords2 =  sorted(sl.topWords, key = lambda rev: rev[1], reverse = True)
+        #print topWords2
         for top_word in topWords2:
-                print top_word
+                #print top_word
                 topTweets[top_word] = sl.sortedTweets[top_word]
         #print topTweets
-        with open('score.json','w') as f:
-                json.dump(topTweets,f)
-        with open('slangtionary.json', 'w') as f:
-                json.dump(sl.tweets, f)
+        with open('score.json','w') as f1:
+                json.dump(topTweets,f1)
+        with open('slangtionary.json', 'w') as f2:
+                json.dump(sl.tweets, f2)
