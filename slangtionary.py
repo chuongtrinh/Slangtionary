@@ -93,6 +93,7 @@ class Slangtionary:
                 self.scores = [] # [ { id: 231, 'text': fsdfs, 'score':0.23} , { id: 231, 'text': fsdfs, 'score':0.23} ]
                 self.sortedTweets = {} # { word: self.scores,
                 self.topWords = {}
+                self.count =0;
                 self.locations = [ (41.8695355,-87.5879599) , (47.614848,-122.3359059) , (34.0204989,-118.4117325) , (29.817178,-95.4012915) , (38.8993487,-77.0145665), (33.7677129,-84.4206039) , (28.4811689,-81.36875) , (39.091919,-94.5757195)]  
 
         def frequency(self,word, list_of_word_in_doc):
@@ -190,8 +191,12 @@ class Slangtionary:
                 geoCodeCords  = '\"' +str(cordX)+ ',' + str(cordY) + ',' + '250mi\"'
                 print newQuery
                 print geoCodeCords
-                self.tweets[query] = []
-                self.tweets[query].append(self.tc.api.search(q = newQuery, geocode = geoCodeCords ,count = count, lang = "en")['statuses'])
+                qryResult = self.tc.api.search(q = newQuery, geocode = geoCodeCords ,count = count, lang = "en")['statuses']
+                #self.count += 1
+                if query not in self.tweets:
+                        self.tweets[query] = qryResult
+                else:
+                        self.tweets[query] = self.tweets[query] + qryResult
                 #maybe later trim down unneeded fields
 
         def get_twitter_results2(self, query, count):
@@ -209,43 +214,51 @@ class Slangtionary:
                                 - 20% from user's total number of tweets
                    (these amounts may be adjusted later)'''
                 #score = 0
+                with open('test.json','w') as f1:
+                        json.dump(self.tweets,f1)
                 for word in self.tweets:
                         #print word
                         sortedList =[]
                         count = 0
                         totalscore = 0
-                        for stuff in self.tweets[word]:
+                        s = self.tweets[word]
+                        with open('test2.json','w') as f1:
+                                json.dump(s,f1)
+                        for t in self.tweets[word]:
                                 # adds up to 100%
                                 #print t
                                 #print stuff
-                                for t in stuff:    
-                                        count += 1
-                                        print "t is:"
-                                        print t['favorite_count']
-                                        print count
-                                        if count >= 0:
-                                                print word
-                                                #print unicode(t['text'])
-                                                score = 0
-                                                score += math.log(t['favorite_count']+1,2) * 0.025
-                                                score += math.log(t['retweet_count']+1,2) * 0.0025
-                                                score += math.log(t['user']['followers_count']+1,2) * 0.05
-                                                #score += math.log(t['user']['statuses_count']+1,2) * 0.05
-                                                score += t['text'].count(word) * 10
-                                                totalscore += score
-                                                #stemming the texts
-                                                tokens = TextProcess.tokenize(t['text'])
-                                                #list_of_stem_words = TextProcess.stemming(tokens)
-                                                text = ' '.join(tokens).strip()
-                                                self.scores.append({ 'id': t['id'], 'text':unicode(text,errors='ignore'), 'score' : score})
-                                                print self.scores
+                                #for t in stuff:    
+                                #print "t is:"
+                                #print t['favorite_count']
+                                print count
+                                #t = s[count]
+                                if word in t['text']:
+                                        #print word
+                                        #print unicode(t['text'])
+                                        score = 0
+                                        score += math.log(t['favorite_count']+1,2) * 0.25
+                                        score += math.log(t['retweet_count']+1,2) * 0.025
+                                        score += math.log(t['user']['followers_count']+1,2) * 0.05
+                                        #score += math.log(t['user']['statuses_count']+1,2) * 0.05
+                                        totalscore += score
+                                        #stemming the texts
+                                        tokens = TextProcess.tokenize(t['text'])
+                                        #list_of_stem_words = TextProcess.stemming(tokens)
+                                        text = ' '.join(tokens).strip()
+                                        self.scores.append({ 'id': t['id'], 'text':unicode(text,errors='ignore'), 'score' : score, 'geo':t['geo']['coordinates']})
+                                        #print self.scores
+                                count+=1
                         if (totalscore >=0):
                                 sortedList = sorted(self.scores, key = lambda k: k['score'], reverse=True)[0:100]
-                                self.sortedTweets[word] = []
-                                self.sortedTweets[word].extend(sortedList)
+                                sortedList2 = sorted(sortedList, key = lambda k: k['geo'][1], reverse=True)
+                                if word not in self.sortedTweets:
+                                        self.sortedTweets[word] = sortedList2
+                                else:
+                                        self.sortedTweets[word] += sortedList2
                                 self.scores = []
                                         #self.topWords[word] = totalscore
-                                print sortedList
+                                #print sortedList
                 #print self.sortedTweets
                 #tfidf_dict = self.get_review_tfidf_dict(self.
 
@@ -282,19 +295,27 @@ if __name__ == '__main__':
                 #if (ran % 3 == 0):
                         #sl.get_twitter_results(w, 50)
                 for item in sl.locations:
-                        sl.get_twitter_results("Bae",item[0],item[1], 20)
-                        sl.get_twitter_results("flubola",item[0],item[1], 20)
+                        sl.get_twitter_results("salty",item[0],item[1], 12)
+                        sl.get_twitter_results("swerve",item[0],item[1], 12)
+                        sl.get_twitter_results("basic",item[0],item[1], 12)
+                        sl.get_twitter_results("butter face",item[0],item[1], 12)
+                        sl.get_twitter_results("bae",item[0],item[1], 12)
+                #sl.get_twitter_results("salty",sl.locations[7][0],sl.locations[7][1], 20)
+                #sl.get_twitter_results("swerve",sl.locations[7][0],sl.locations[7][1], 20)
+                #sl.get_twitter_results("basic",sl.locations[7][0],sl.locations[7][1], 20)
+                #sl.get_twitter_results("butter face",sl.locations[7][0],sl.locations[7][1], 20)
+                #sl.get_twitter_results("bae",sl.locations[7][0],sl.locations[7][1], 20)
         #sl.get_twitter_results(sl.words[7], 1)
         sl.calc_tweet_scores()
         topTweets = {}
         #print sl.topWords
-        topWords2 =  sorted(sl.topWords, key = lambda rev: rev[1], reverse = True)[0:100]
+        topWords2 =  sorted(sl.topWords, key = lambda rev: rev[1], reverse = True)[0:40]
         #print topWords2
         for top_word in topWords2:
                 #print top_word
                 topTweets[top_word] = sl.sortedTweets[top_word]
         #print topTweets
-        with open('score.json','w') as f1:
+        with open('score2.json','w') as f1:
                 json.dump(sl.sortedTweets,f1)
         with open('slangtionary.json', 'w') as f2:
                 json.dump(sl.tweets, f2)
