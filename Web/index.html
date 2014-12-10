@@ -59,8 +59,9 @@
           </ul>
          
         </div>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">Where the slang is used</h1>
+        <div id="headers" class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h1 id="word-header" class="page-header">Where the slang is used: </h1>
+	  
 <!--
 		<div class="row placeholders">
 			<div  class="map" id="container" style="position: relative; width: 1000px; height: 500px;">
@@ -77,8 +78,10 @@
 			</div>
 			
 		</div>
-
-          
+		<div class ="row placeholders" align ="left">
+          <ol id="details" align="left">
+			
+		  </ol>
         </div>
       </div>
     </div>
@@ -105,45 +108,69 @@
 		  function getRandomInRange(from, to, fixed) {
 			  return (Math.random() * (to - from) + from).toFixed(fixed) * 1;
 		  }
-		  
+		  function precise_round(num,decimals){
+			return Math.round(num*Math.pow(10,decimals))/Math.pow(10,decimals);
+		}
 		 function drawMap(word,tweets) {
 		 // tweets = [ {tweet1}, {tweet2}, ...} ]
 		 // assign random 
 		 // empty previous map
+		 console.log('Where the slang is used: ' +word);
+		 $('#word-header')[0].innerHTML ='Where the slang is used: ' +word;
+		 
 		 $('#bubbles').empty();
 		 var bombs =[];
 		 var index;
 		 console.log(word);
 		 console.log(tweets);
+		 var output;
+		 var allResults;
+		 var baseLong =0 ;
+		 var baseLat = 0;
+		 var count = 0;
+		 var isNewTweet = false;
 		 for (index = 0; index <tweets.length; index++) {
-			var media  ="images/slang.gif";
-			var screen_name;
-			if (typeof tweets[index].entities !== 'undefined') {
-				//media = tweets[index].entities.media[0].media_url;
-			} else {
-				//media = "images/slang.gif";
-			}
-			 if (typeof tweets[index].user !== 'undefined') {
-				 screen_name = tweets[index].user.screen_name;
+			 count++;
+			 if (baseLong == 0) {
+				isNewTweet = true;
 			 } else {
-				 screen_name = tweets[index].name;
+				isNewTweet = false;
 			 }
-			var tweet = {
-				name : word,	
-				radius : 5*getRandomInRange(1,2,0),
-				fillKey : 'RUS',
-				text: tweets[index].text,
-				id : tweets[index].id,
-				screen_name : screen_name, 
-				
-				image : media,
-				latitude: getRandomInRange(30,47,3),
-				longitude: getRandomInRange(-118,-81,3)
-			 };
-			 console.log(tweet);
-			bombs[index] = tweet;
-			console.log(tweet);
-		}		 
+			 if (baseLong != precise_round(tweets[index].geo[1],1)
+				&& baseLat != precise_round(tweets[index].geo[0],1) || (index == tweets.length -1)) {
+				baseLong = precise_round(tweets[index].geo[1],1);
+				baseLat = precise_round(tweets[index].geo[0],1);
+				if (!isNewTweet) {
+					// jump to tweets with different locations
+					output += '<li>' + tweets[index].text + '</li>';
+					var tweet = {
+					name : word,	
+					radius : 5*count,
+					fillKey : 'RUS',
+					text: output,
+					id : tweets[index].id,				
+					score: tweets[index].score,
+					latitude: baseLat,
+					longitude: baseLong
+					};
+					bombs.push(tweet);	
+					 console.log("long" +baseLong);					 
+					 console.log("lat" +baseLat);
+
+					 console.log(tweet.latitude);
+					 allResults += output;
+					 output ='';
+					 count =0;
+				} else {
+				output += '<li>' + tweets[index].text + '</li>';
+				}
+			 } else {
+			 	output += '<li>' + tweets[index].text + '</li>';
+			 }
+			 
+			}		 
+			
+			$('#details')[0].innerHTML = allResults;
 		     var bombMap = new Datamap({
 			    element: document.getElementById('bubbles'),
 			    scope: 'usa',
@@ -322,9 +349,8 @@
 		  //draw bubbles for bombs
 		  bombMap.bubbles(bombs, {
 			  popupTemplate: function (geo, data) { 
-				  return ['<div class="hoverinfo"><h4>' +  word +'</h4>',
-				  '<hr/>'+ '<img src="' + data.image +'"heigh="30px" width="150px"/>' + '<hr/>',
-				  data.text,
+				  return ['<div align="left" class="hoverinfo">',
+				  '<ol align="left">' + data.text + '</ol>' +
 				  '</div>'].join('');
 			  }
 		  });
@@ -380,46 +406,44 @@
 		  /* ]]> */
 	  </script>
 	  <script>
+		 jsonMap = new Object();
 		  $(document).ready(function() {
-			  console.log("running3");
-			  
-			  $.getJSON('slangtionary.json',function(json) {
-				  console.log("running2");
-				 
+			 
+			  $.getJSON('score2.json',function(json) {
+				  var input = [];
+				  
+				  
 				  $.each(json,function(key,value) {
 					  console.log(key);
 					  //$("#site-bar ul#vocabulary").append('<li class="item" id="' + key + '"> <a href="">' + key + '</a></li>');
 					  $("#site-bar ul#vocabulary").append('<li class="item" id="' + key + '"><a href="#">'+ key + '</a></li>');
-					 
-					  
+								
+					  jsonMap[key] = value;
 					  //$("#site-bar ul#vocabulary").append('<li class="item" onclick="triggerMap('+"'"+ key+ "'"+ ')" id="' + key + '"> <a href="">' + key + '</a></li>');				
-				  });
-			
-			  });
-			  window.setTimeout(function() {
+				  
+			//console.log(jsonMap[key] );	
+				});
+				console.log(jsonMap['Tits']);
+				  
+				
+			  
+			});
+			 
+			window.setTimeout(function() {
+		
+				console.log('fdfd)');
+				console.log(jsonMap);
+				//drawMap('Ryan',jsonMap['Ryan']);
 			  $(".item").click(function() {
 				  var item_id = $(this).attr('id');
-				  console.log("running");
+				  console.log("running");					 
+				  drawMap(item_id,jsonMap[item_id]);
 				  
-				  $.getJSON('slangtionary.json',function(json) {
-					  var input = [];
-					  
-					  $.each(json,function(key2,value2) {
-						  if (key2 == item_id) {
-							  // regenerate the map
-							  input.push(value2);
-							  //console.log(value2);
-						  }
-					  });
-					  console.log("dojne");
-					  console.log(input);
-					  drawMap(item_id,input[0]);
-				  });
 				  
 			  });
-			  }, 3000);
-			  
-		  });
+			},1000);
+			
+		});
 		  
 	
 	  </script>
